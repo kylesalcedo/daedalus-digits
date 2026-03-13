@@ -88,7 +88,7 @@ const PASSAGES = [
     authors: "Sankar K, Michael Christudhas JC.",
     journal: "Proceedings of the Institution of Mechanical Engineers, Part H",
     year: 2021,
-    note: "Hand dominance is real and measurable — but trainable non-dominant practice reduces the gap.",
+    note: "Hand dominance is real and measurable, but trainable non-dominant practice reduces the gap.",
   },
   {
     text: "Distributed practice is superior to massed practice for motor skill learning. Distributed practice with breaks between practice sessions consistently outperforms massed practice without breaks for retention and long-term learning. In one study, distributed practice showed a 19% improvement over massed practice on retention tests. The benefits appear most pronounced in early and late learning phases.",
@@ -208,7 +208,7 @@ const PASSAGES = [
     authors: "Karni A, Meyer G, Rey-Hipolito C, et al.",
     journal: "Proceedings of the National Academy of Sciences",
     year: 1998,
-    note: "Motor learning happens in three phases — fast gains, sleep consolidation, then slow refinement.",
+    note: "Motor learning happens in three phases: fast gains, sleep consolidation, then slow refinement.",
   },
   {
     text: "Brief memory reactivations can induce learning. Motor skill learning can be achieved through brief 30-second reactivations on separate days, but only when reactivations are highly continuous with many correct sequences. High-continuity reactivations produce learning gains similar to full practice sessions, making micro-practice viable.",
@@ -449,7 +449,7 @@ function KeyboardHeatmap({ missedKeys }) {
         return (
           <div style={{ marginTop: "10px", fontSize: "0.68rem", color: C.refText, textAlign: "center", lineHeight: 1.6 }}>
             {weak.length === 1
-              ? <>Focus on your <span style={{ color: C.amber }}>{weak[0].label}</span> finger — {weak[0].count} missed key{weak[0].count !== 1 ? "s" : ""} mapped to it.</>
+              ? <>Focus on your <span style={{ color: C.amber }}>{weak[0].label}</span> finger: {weak[0].count} missed key{weak[0].count !== 1 ? "s" : ""} mapped to it.</>
               : <>Your <span style={{ color: C.amber }}>{weak[0].label}</span> ({weak[0].count} misses) and <span style={{ color: C.amber }}>{weak[1].label}</span> ({weak[1].count} misses) need the most coordination work.</>
             }
           </div>
@@ -569,25 +569,25 @@ function AboutScreen() {
       <div style={h}>Daedalus Digits</div>
       <div style={sub}>Named for the master craftsman who understood that precision is built, not born.</div>
       <div style={p}>
-        Inspired by <span style={{ color: C.active }}>monkeytype</span> — but where monkeytype measures
+        Inspired by <span style={{ color: C.active }}>monkeytype</span>, but where monkeytype measures
         your speed, Daedalus Digits maps your craft. After each test, a QWERTY heatmap reveals
-        exactly which keys you stumble on, and identifies the specific fingers that need
-        coordination work based on standard touch-typing form. It's not just "you made 5 errors" —
-        it's "your left ring finger needs practice on W, S, and X."
+        exactly which keys you stumble on and identifies the specific fingers that need
+        coordination work based on standard touch-typing form. It does not just say
+        "you made 5 errors." It says "your left ring finger needs practice on W, S, and X."
       </div>
       <div style={p}>
         Every passage is drawn from {PASSAGES.length} peer-reviewed studies on hand dexterity,
         motor learning, and typing biomechanics. The reference panel shows the full citation
-        and a key finding as you type — so you learn the science of your own hands while
+        and a key finding as you type, so you learn the science of your own hands while
         training them.
       </div>
       <div style={section}>What sets it apart</div>
       <div style={{ ...small, marginBottom: "16px" }}>
-        <span style={{ color: C.amber }}>Miss heatmap</span> — every key colored by error frequency, cool to warm<br/>
-        <span style={{ color: C.amber }}>Finger analysis</span> — maps errors to specific fingers via standard typing form<br/>
-        <span style={{ color: C.amber }}>Research content</span> — type real findings, not lorem ipsum<br/>
-        <span style={{ color: C.amber }}>Live citations</span> — source, authors, journal, and key insight shown as you type<br/>
-        <span style={{ color: C.amber }}>Session tracking</span> — WPM trends, accuracy trends, most-missed keys over time
+        <span style={{ color: C.amber }}>Miss heatmap</span> &middot; every key colored by error frequency, cool to warm<br/>
+        <span style={{ color: C.amber }}>Finger analysis</span> &middot; maps errors to specific fingers via standard typing form<br/>
+        <span style={{ color: C.amber }}>Research content</span> &middot; type real findings, not lorem ipsum<br/>
+        <span style={{ color: C.amber }}>Live citations</span> &middot; source, authors, journal, and key insight shown as you type<br/>
+        <span style={{ color: C.amber }}>Session tracking</span> &middot; WPM trends, accuracy trends, most-missed keys over time
       </div>
       <div style={section}>Shortcuts</div>
       <div style={{ ...small, marginBottom: "20px" }}>
@@ -602,14 +602,14 @@ function AboutScreen() {
       </div>
       <div style={section}>How it works</div>
       <div style={small}>
-        Choose <span style={{ color: C.amber }}>time</span> mode (15–120s countdown) or <span style={{ color: C.amber }}>words</span> mode (10–100 words).
+        Choose <span style={{ color: C.amber }}>time</span> mode (15 to 120s countdown) or <span style={{ color: C.amber }}>words</span> mode (10 to 100 words).
         Characters light up <span style={{ color: C.correct }}>green</span> for correct, <span style={{ color: C.incorrect }}>red</span> for incorrect.
         Backspace corrects within the current word. After each test, review your WPM, accuracy,
         a per-second sparkline, and a key heatmap that tells you exactly which fingers to focus on.
         Browse all {PASSAGES.length} research passages at any time with Tab+arrows.
       </div>
       <div style={{ ...sub, marginTop: "28px", marginBottom: 0, fontStyle: "normal" }}>
-        Like Daedalus shaped wax and feather into flight — shape keystrokes into fluency.
+        Like Daedalus shaped wax and feather into flight, shape keystrokes into fluency.
       </div>
     </div>
   );
@@ -1299,7 +1299,7 @@ export default function HandTyper() {
                   textAlign: "center", fontSize: "0.6rem", color: C.muted,
                   padding: "12px 0 0", fontFamily: "'JetBrains Mono', monospace",
                 }}>
-                  browsing {browsePassageIdx + 1}/{PASSAGES.length} — Enter to jump · type to return
+                  browsing {browsePassageIdx + 1}/{PASSAGES.length} · Enter to jump · type to return
                 </div>
               )}
               <ReferencePanel passageIdx={browsePassageIdx != null ? browsePassageIdx : activePassageIdx} fadeKey={refFadeKey} direction={refDirection} />
