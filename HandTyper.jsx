@@ -721,8 +721,8 @@ function SessionPanel({ sessionHistory, onClose }) {
 
   if (!stats) return (
     <div style={{
-      position: "fixed", top: 0, right: 0, width: "30%", height: "100vh",
-      background: C.faint, zIndex: 20, animation: "slideIn 0.2s ease",
+      width: "100%", height: "100%",
+      background: C.faint, animation: "fadeIn 0.2s ease",
       display: "flex", alignItems: "center", justifyContent: "center",
       fontFamily: "'JetBrains Mono', monospace",
     }}>
@@ -734,9 +734,9 @@ function SessionPanel({ sessionHistory, onClose }) {
 
   return (
     <div style={{
-      position: "fixed", top: 0, right: 0, width: "30%", height: "100vh",
-      background: C.faint, padding: "28px 20px", zIndex: 20,
-      animation: "slideIn 0.2s ease",
+      width: "100%", height: "100%",
+      background: C.faint, padding: "28px 20px",
+      animation: "fadeIn 0.2s ease",
       display: "flex", flexDirection: "column", gap: "18px", overflowY: "auto",
       fontFamily: "'JetBrains Mono', monospace",
     }}>
@@ -770,7 +770,7 @@ function SessionPanel({ sessionHistory, onClose }) {
           <div style={{ ...label, marginBottom: "8px" }}>most missed keys</div>
           {stats.topMissed.map(([key, count]) => (
             <div key={key} style={{ display: "flex", justifyContent: "space-between", fontSize: "0.75rem", color: C.refText, marginBottom: "4px" }}>
-              <span style={{ color: C.amber }}>{key}</span>
+              <span style={{ color: C.amber }}>{key === " " ? "space" : key}</span>
               <span>{count}</span>
             </div>
           ))}
@@ -881,7 +881,12 @@ export default function HandTyper() {
     setBrowsePassageIdx(null);
     setRefFadeKey((k) => k + 1);
     if (mode === "time") setTimeLeft(timeDuration);
-  }, [flatText, passageMap, timeDuration, mode]);
+  }, [flatText, passageMap, mode]);
+
+  // Update timeLeft when timeDuration changes (without full reset)
+  useEffect(() => {
+    if (!started && mode === "time") setTimeLeft(timeDuration);
+  }, [timeDuration, started, mode]);
 
   // Focus
   const focusInput = useCallback(() => { inputRef.current?.focus(); }, []);
@@ -1071,6 +1076,32 @@ export default function HandTyper() {
         });
         return; // don't reset tabPressedRef
       }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        if (mode === "time") {
+          const opts = [15, 30, 60, 120];
+          const idx = opts.indexOf(timeDuration);
+          setTimeDuration(opts[(idx + 1) % opts.length]);
+        } else {
+          const opts = [10, 25, 50, 100];
+          const idx = opts.indexOf(wordCount);
+          setWordCount(opts[(idx + 1) % opts.length]);
+        }
+        return;
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (mode === "time") {
+          const opts = [15, 30, 60, 120];
+          const idx = opts.indexOf(timeDuration);
+          setTimeDuration(opts[(idx - 1 + opts.length) % opts.length]);
+        } else {
+          const opts = [10, 25, 50, 100];
+          const idx = opts.indexOf(wordCount);
+          setWordCount(opts[(idx - 1 + opts.length) % opts.length]);
+        }
+        return;
+      }
       if (e.key === "t" || e.key === "T") {
         e.preventDefault();
         setShowTimer((s) => !s);
@@ -1171,7 +1202,7 @@ export default function HandTyper() {
       }
       return newPos;
     });
-  }, [flatText, mode, restartTest, doFinish, showSession]);
+  }, [flatText, mode, restartTest, doFinish, showSession, timeDuration, wordCount]);
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
@@ -1292,7 +1323,9 @@ export default function HandTyper() {
           flex: "0 0 30%", background: C.faint, display: "flex",
           alignItems: "center", justifyContent: "center", minHeight: 0, overflow: "auto",
         }}>
-          {!showSession ? (
+          {showSession ? (
+            <SessionPanel sessionHistory={sessionHistory} onClose={() => setShowSession(false)} />
+          ) : (
             <div style={{ width: "100%" }}>
               {browsePassageIdx != null && (
                 <div style={{
@@ -1304,17 +1337,12 @@ export default function HandTyper() {
               )}
               <ReferencePanel passageIdx={browsePassageIdx != null ? browsePassageIdx : activePassageIdx} fadeKey={refFadeKey} direction={refDirection} />
             </div>
-          ) : null}
+          )}
         </div>
       </div>
 
       {/* Shortcut bar */}
       <ShortcutBar />
-
-      {/* Session panel overlay */}
-      {showSession && (
-        <SessionPanel sessionHistory={sessionHistory} onClose={() => setShowSession(false)} />
-      )}
     </div>
   );
 }
