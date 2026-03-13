@@ -1,6 +1,6 @@
 # Daedalus Digits
 
-*Named for the master craftsman who understood that precision is built, not born.*
+*Navigate a labyrinth of passages and craft coordination with your digits.*
 
 <p align="center">
   <img src="assets/daedalus.jpg" alt="Daedalus" width="360" />
