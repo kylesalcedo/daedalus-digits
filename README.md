@@ -36,6 +36,7 @@ Inspired by [monkeytype](https://monkeytype.com), but where monkeytype measures 
 | `Esc` | Reset with new words |
 | `Tab` + `1` / `2` | Switch time or word mode |
 | `Tab` + `Up` / `Down` | Browse research passages |
+| `Tab` + `Right` / `Left` | Cycle time duration or word count |
 | `Tab` + `T` | Show or hide timer |
 | `Ctrl` + `H` | Toggle session history |
 | `Ctrl` + `Backspace` | Delete whole word |
