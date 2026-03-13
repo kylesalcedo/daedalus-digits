@@ -558,44 +558,58 @@ function TopBar({ mode, setMode, showAbout, setShowAbout, timeDuration, setTimeD
 
 // ─── ABOUT SCREEN ───────────────────────────────────────────────────────────
 function AboutScreen() {
-  const h = { color: C.amber, fontSize: "1.4rem", fontWeight: 700, marginBottom: "12px" };
+  const h = { color: C.amber, fontSize: "1.6rem", fontWeight: 700, marginBottom: "6px", letterSpacing: "0.5px" };
+  const sub = { color: C.muted, fontSize: "0.72rem", marginBottom: "24px", fontStyle: "italic" };
   const p = { color: C.refText, fontSize: "0.82rem", lineHeight: 1.7, marginBottom: "16px", maxWidth: "540px" };
   const small = { color: C.muted, fontSize: "0.72rem", lineHeight: 1.6 };
   const key = { display: "inline-block", color: C.active, background: "#1a1a1a", padding: "1px 6px", borderRadius: "3px", fontSize: "0.7rem", margin: "0 2px" };
+  const section = { color: C.refTitle, fontSize: "0.78rem", marginBottom: "8px", marginTop: "20px" };
   return (
     <div style={{ animation: "fadeIn 0.3s ease", padding: "40px 32px", maxWidth: "640px" }}>
       <div style={h}>Daedalus Digits</div>
+      <div style={sub}>Named for the master craftsman who understood that precision is built, not born.</div>
       <div style={p}>
-        A typing game grounded in motor science research. Every passage you type is drawn from
-        peer-reviewed studies on hand dexterity, motor learning, and typing biomechanics.
-        The reference panel on the right shows the full citation and a key finding as you type.
+        Inspired by <span style={{ color: C.active }}>monkeytype</span> — but where monkeytype measures
+        your speed, Daedalus Digits maps your craft. After each test, a QWERTY heatmap reveals
+        exactly which keys you stumble on, and identifies the specific fingers that need
+        coordination work based on standard touch-typing form. It's not just "you made 5 errors" —
+        it's "your left ring finger needs practice on W, S, and X."
       </div>
       <div style={p}>
-        Built to help you type faster while learning how your hands actually work — from
-        finger independence and neural pathway myelination to optimal practice distribution
-        and injury prevention.
+        Every passage is drawn from {PASSAGES.length} peer-reviewed studies on hand dexterity,
+        motor learning, and typing biomechanics. The reference panel shows the full citation
+        and a key finding as you type — so you learn the science of your own hands while
+        training them.
       </div>
-      <div style={{ ...p, color: C.refTitle, fontSize: "0.78rem" }}>
-        Shortcuts
+      <div style={section}>What sets it apart</div>
+      <div style={{ ...small, marginBottom: "16px" }}>
+        <span style={{ color: C.amber }}>Miss heatmap</span> — every key colored by error frequency, cool to warm<br/>
+        <span style={{ color: C.amber }}>Finger analysis</span> — maps errors to specific fingers via standard typing form<br/>
+        <span style={{ color: C.amber }}>Research content</span> — type real findings, not lorem ipsum<br/>
+        <span style={{ color: C.amber }}>Live citations</span> — source, authors, journal, and key insight shown as you type<br/>
+        <span style={{ color: C.amber }}>Session tracking</span> — WPM trends, accuracy trends, most-missed keys over time
       </div>
+      <div style={section}>Shortcuts</div>
       <div style={{ ...small, marginBottom: "20px" }}>
         <span style={key}>Tab</span>+<span style={key}>Enter</span> restart same test<br/>
         <span style={key}>Esc</span> reset with new words<br/>
         <span style={key}>Tab</span>+<span style={key}>1</span>/<span style={key}>2</span> switch time/word mode<br/>
         <span style={key}>Tab</span>+<span style={key}>↑</span>/<span style={key}>↓</span> browse research (hold Tab, press arrows)<br/>
+        <span style={key}>Tab</span>+<span style={key}>Enter</span> jump to browsed passage<br/>
         <span style={key}>Tab</span>+<span style={key}>T</span> show/hide timer<br/>
         <span style={key}>Ctrl</span>+<span style={key}>H</span> session history<br/>
         <span style={key}>Ctrl</span>+<span style={key}>Backspace</span> delete whole word
       </div>
-      <div style={{ ...p, color: C.refTitle, fontSize: "0.78rem" }}>
-        How it works
-      </div>
+      <div style={section}>How it works</div>
       <div style={small}>
         Choose <span style={{ color: C.amber }}>time</span> mode (15–120s countdown) or <span style={{ color: C.amber }}>words</span> mode (10–100 words).
         Characters light up <span style={{ color: C.correct }}>green</span> for correct, <span style={{ color: C.incorrect }}>red</span> for incorrect.
-        Backspace works within the current word. After each test, review your WPM, accuracy,
-        a per-second sparkline, and a key heatmap showing which fingers need work.
-        Browse through {PASSAGES.length} research passages at any time with Tab+arrows.
+        Backspace corrects within the current word. After each test, review your WPM, accuracy,
+        a per-second sparkline, and a key heatmap that tells you exactly which fingers to focus on.
+        Browse all {PASSAGES.length} research passages at any time with Tab+arrows.
+      </div>
+      <div style={{ ...sub, marginTop: "28px", marginBottom: 0, fontStyle: "normal" }}>
+        Like Daedalus shaped wax and feather into flight — shape keystrokes into fluency.
       </div>
     </div>
   );
