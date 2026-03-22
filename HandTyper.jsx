@@ -287,6 +287,122 @@ function generateWordsForTimeMode(startPassage = 0) {
   return result;
 }
 
+// ─── LABYRINTH PROGRESS ────────────────────────────────────────────────────
+// Square spiral labyrinth with path divided into 30 segments.
+// Winds inward from the outside in a rectangular spiral pattern.
+
+const LABYRINTH_SEGMENTS = (() => {
+  // Build a rectangular spiral path from outside to center
+  const margin = 8;
+  const size = 100;
+  const gap = 5.5;
+
+  // Generate all corner points of the spiral going clockwise inward
+  const points = [];
+  let l = margin, t = margin, r = size - margin, b = size - margin;
+
+  // Entry at bottom-center, going right to start the spiral
+  points.push({ x: (l + r) / 2, y: b });
+
+  while (r - l > gap && b - t > gap) {
+    points.push({ x: r, y: b }); // bottom-right
+    points.push({ x: r, y: t }); // top-right
+    points.push({ x: l, y: t }); // top-left
+    points.push({ x: l, y: b - gap }); // left side, one gap up from bottom (creates the opening)
+    l += gap; t += gap; r -= gap; b -= gap;
+  }
+  // End at center
+  points.push({ x: (l + r) / 2, y: (t + b) / 2 });
+
+  // Build fine-grained polyline (every corner is a point)
+  // Calculate cumulative distance at each point
+  const cumDist = [0];
+  for (let i = 1; i < points.length; i++) {
+    const dx = points[i].x - points[i - 1].x;
+    const dy = points[i].y - points[i - 1].y;
+    cumDist.push(cumDist[i - 1] + Math.sqrt(dx * dx + dy * dy));
+  }
+  const totalLen = cumDist[cumDist.length - 1];
+
+  // Interpolate a position along the polyline at a given distance
+  function posAt(dist) {
+    for (let i = 1; i < points.length; i++) {
+      if (dist <= cumDist[i]) {
+        const edgeLen = cumDist[i] - cumDist[i - 1];
+        const frac = edgeLen > 0 ? (dist - cumDist[i - 1]) / edgeLen : 0;
+        return {
+          x: points[i - 1].x + frac * (points[i].x - points[i - 1].x),
+          y: points[i - 1].y + frac * (points[i].y - points[i - 1].y),
+        };
+      }
+    }
+    return points[points.length - 1];
+  }
+
+  // Divide into 30 segments, each a polyline following corners
+  const segments = [];
+  const segLen = totalLen / 30;
+
+  for (let s = 0; s < 30; s++) {
+    const dStart = s * segLen;
+    const dEnd = (s + 1) * segLen;
+
+    // Collect all points along this segment (start, any corners in between, end)
+    const segPoints = [posAt(dStart)];
+    for (let i = 1; i < points.length; i++) {
+      if (cumDist[i] > dStart && cumDist[i] < dEnd) {
+        segPoints.push(points[i]);
+      }
+    }
+    segPoints.push(posAt(Math.min(dEnd, totalLen)));
+
+    // Build SVG path with line segments through corners
+    let d = `M ${segPoints[0].x.toFixed(1)} ${segPoints[0].y.toFixed(1)}`;
+    for (let i = 1; i < segPoints.length; i++) {
+      d += ` L ${segPoints[i].x.toFixed(1)} ${segPoints[i].y.toFixed(1)}`;
+    }
+    segments.push({ d, idx: s });
+  }
+
+  return segments;
+})();
+
+function LabyrinthProgress({ completedPassages, activePassageIdx, total }) {
+  const count = completedPassages.size;
+  return (
+    <div style={{ textAlign: "center", padding: "16px 20px 8px", opacity: 0.85 }}>
+      <svg viewBox="0 0 100 100" width="70" height="70" style={{ display: "block", margin: "0 auto" }}>
+        {LABYRINTH_SEGMENTS.map((seg) => {
+          const isCompleted = completedPassages.has(seg.idx);
+          const isActive = seg.idx === activePassageIdx % total;
+          return (
+            <path
+              key={seg.idx}
+              d={seg.d}
+              fill="none"
+              stroke={isCompleted ? C.amber : C.muted}
+              strokeWidth={isActive ? 2.5 : 1.8}
+              strokeLinecap="round"
+              opacity={isCompleted ? 1 : 0.4}
+              style={isActive && !isCompleted ? {
+                animation: "blink 2s ease-in-out infinite",
+              } : undefined}
+            />
+          );
+        })}
+        {/* Center dot */}
+        <circle cx="50" cy="50" r="2.5" fill={count === total ? C.amber : C.muted} opacity={count === total ? 1 : 0.3} />
+      </svg>
+      <div style={{
+        fontSize: "0.6rem", color: C.muted, marginTop: "4px",
+        fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.5px",
+      }}>
+        {count} / {total} passages
+      </div>
+    </div>
+  );
+}
+
 // ─── FONT + CSS INJECTION ───────────────────────────────────────────────────
 const FONT_INJECTED = { current: false };
 function injectFont() {
@@ -833,6 +949,23 @@ export default function HandTyper() {
   const [sessionHistory, setSessionHistory] = useState([]);
   const [showSession, setShowSession] = useState(false);
 
+  // Labyrinth passage completion (persisted in localStorage)
+  const [completedPassages, setCompletedPassages] = useState(() => {
+    try {
+      const stored = localStorage.getItem("daedalus-completedPassages");
+      return new Set(stored ? JSON.parse(stored) : []);
+    } catch { return new Set(); }
+  });
+  const markPassageCompleted = useCallback((idx) => {
+    setCompletedPassages(prev => {
+      if (prev.has(idx)) return prev;
+      const next = new Set(prev);
+      next.add(idx);
+      localStorage.setItem("daedalus-completedPassages", JSON.stringify([...next]));
+      return next;
+    });
+  }, []);
+
   // Refs
   const inputRef = useRef(null);
   const textRef = useRef(null);
@@ -909,11 +1042,18 @@ export default function HandTyper() {
   // Update active passage based on cursor (clears browse override)
   useEffect(() => {
     if (charPassageMap[cursorPos] != null && charPassageMap[cursorPos] !== activePassageIdx) {
+      // The cursor just moved into a new passage — mark the previous one as completed
+      markPassageCompleted(activePassageIdx);
       setActivePassageIdx(charPassageMap[cursorPos]);
       setBrowsePassageIdx(null);
       setRefFadeKey((k) => k + 1);
     }
-  }, [cursorPos, charPassageMap, activePassageIdx]);
+  }, [cursorPos, charPassageMap, activePassageIdx, markPassageCompleted]);
+
+  // Also mark the current passage as completed when the test finishes
+  useEffect(() => {
+    if (finished) markPassageCompleted(activePassageIdx);
+  }, [finished, activePassageIdx, markPassageCompleted]);
 
   // Timer for time mode
   useEffect(() => {
@@ -1321,22 +1461,25 @@ export default function HandTyper() {
         {/* Right: reference panel */}
         <div style={{
           flex: "0 0 30%", background: C.faint, display: "flex",
-          alignItems: "center", justifyContent: "center", minHeight: 0, overflow: "auto",
+          flexDirection: "column", minHeight: 0,
         }}>
           {showSession ? (
             <SessionPanel sessionHistory={sessionHistory} onClose={() => setShowSession(false)} />
           ) : (
-            <div style={{ width: "100%" }}>
-              {browsePassageIdx != null && (
-                <div style={{
-                  textAlign: "center", fontSize: "0.6rem", color: C.muted,
-                  padding: "12px 0 0", fontFamily: "'JetBrains Mono', monospace",
-                }}>
-                  browsing {browsePassageIdx + 1}/{PASSAGES.length} · Enter to jump · type to return
-                </div>
-              )}
-              <ReferencePanel passageIdx={browsePassageIdx != null ? browsePassageIdx : activePassageIdx} fadeKey={refFadeKey} direction={refDirection} />
-            </div>
+            <>
+              <div style={{ flex: "1 1 0", overflow: "auto", minHeight: 0 }}>
+                {browsePassageIdx != null && (
+                  <div style={{
+                    textAlign: "center", fontSize: "0.6rem", color: C.muted,
+                    padding: "12px 0 0", fontFamily: "'JetBrains Mono', monospace",
+                  }}>
+                    browsing {browsePassageIdx + 1}/{PASSAGES.length} · Enter to jump · type to return
+                  </div>
+                )}
+                <ReferencePanel passageIdx={browsePassageIdx != null ? browsePassageIdx : activePassageIdx} fadeKey={refFadeKey} direction={refDirection} />
+              </div>
+              <LabyrinthProgress completedPassages={completedPassages} activePassageIdx={browsePassageIdx != null ? browsePassageIdx : activePassageIdx} total={PASSAGES.length} />
+            </>
           )}
         </div>
       </div>
