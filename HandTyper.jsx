@@ -1467,15 +1467,14 @@ export default function HandTyper() {
             <SessionPanel sessionHistory={sessionHistory} onClose={() => setShowSession(false)} />
           ) : (
             <>
-              <div style={{ flex: "1 1 0", overflow: "auto", minHeight: 0 }}>
-                {browsePassageIdx != null && (
-                  <div style={{
-                    textAlign: "center", fontSize: "0.6rem", color: C.muted,
-                    padding: "12px 0 0", fontFamily: "'JetBrains Mono', monospace",
-                  }}>
-                    browsing {browsePassageIdx + 1}/{PASSAGES.length} · Enter to jump · type to return
-                  </div>
-                )}
+              <div style={{ flex: "1 1 0", overflow: "auto", minHeight: 0, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+                <div style={{
+                  textAlign: "center", fontSize: "0.6rem", color: browsePassageIdx != null ? C.muted : "transparent",
+                  padding: "12px 0 0", fontFamily: "'JetBrains Mono', monospace",
+                  pointerEvents: browsePassageIdx != null ? "auto" : "none",
+                }}>
+                  browsing {(browsePassageIdx ?? 0) + 1}/{PASSAGES.length} · Enter to jump · type to return
+                </div>
                 <ReferencePanel passageIdx={browsePassageIdx != null ? browsePassageIdx : activePassageIdx} fadeKey={refFadeKey} direction={refDirection} />
               </div>
               <LabyrinthProgress completedPassages={completedPassages} activePassageIdx={browsePassageIdx != null ? browsePassageIdx : activePassageIdx} total={PASSAGES.length} />
